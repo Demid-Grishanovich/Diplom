@@ -1,0 +1,56 @@
+services:
+  db:
+    image: postgres:16
+    container_name: datacrowd-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: datacrowd
+      POSTGRES_USER: datacrowd
+      POSTGRES_PASSWORD: datacrowd
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
+  backend:
+    build: ./backend
+    container_name: datacrowd-backend
+    depends_on:
+      - db
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/datacrowd
+      SPRING_DATASOURCE_USERNAME: datacrowd
+      SPRING_DATASOURCE_PASSWORD: datacrowd
+      SPRING_JPA_HIBERNATE_DDL_AUTO: validate
+    ports:
+      - "8080:8080"
+
+  dashboard-frontend:
+    build:
+      context: ./frontend/dashboard    # папка с package.json и Dockerfile
+    container_name: datacrowd-dashboard
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+  labeling-frontend:
+    build:
+      context: ./frontend/labeling     # в этой папке тоже должен быть Dockerfile
+    container_name: datacrowd-labeling
+    ports:
+      - "3001:3000"
+    depends_on:
+      - backend
+
+  project-form-frontend:
+    build:
+      context: ./frontend/project-form # и здесь свой Dockerfile
+    container_name: datacrowd-project-form
+    ports:
+      - "3002:3000"
+    depends_on:
+      - backend
+
+volumes:
+  db-data:

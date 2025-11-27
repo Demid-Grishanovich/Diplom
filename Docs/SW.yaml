@@ -1,0 +1,296 @@
+openapi: 3.0.1
+info:
+  title: DataCrowd Lab API
+  description: API specification for crowdsourcing dataset labeling platform.
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8080/api/v1
+    description: Local development
+
+paths:
+
+  /auth/register:
+    post:
+      summary: Register a new user
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDto'
+
+  /auth/login:
+    post:
+      summary: Login user and return JWT token
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Token response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+
+  /projects:
+    post:
+      summary: Create a new project
+      tags: [Projects]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectCreateRequest'
+      responses:
+        '201':
+          description: Project created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectDto'
+
+    get:
+      summary: List projects of current user
+      tags: [Projects]
+      responses:
+        '200':
+          description: List of projects
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectListResponse'
+
+  /projects/{projectId}:
+    get:
+      summary: Get project details
+      tags: [Projects]
+      parameters:
+        - in: path
+          name: projectId
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Project details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectDetailsDto'
+
+  /projects/{projectId}/datasets:
+    post:
+      summary: Upload dataset file
+      tags: [Datasets]
+      parameters:
+        - in: path
+          name: projectId
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DatasetUploadRequest'
+      responses:
+        '201':
+          description: Dataset uploaded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DatasetDto'
+
+  /datasets/{datasetId}/generate-tasks:
+    post:
+      summary: Trigger task generation via Runner service
+      tags: [Datasets]
+      parameters:
+        - in: path
+          name: datasetId
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Task generation started
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskGenerationResponse'
+
+  /tasks/next:
+    get:
+      summary: Get next available task for worker
+      tags: [Tasks]
+      responses:
+        '200':
+          description: Task returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskDto'
+
+  /tasks/{taskId}/submit:
+    post:
+      summary: Submit answer for a task
+      tags: [Tasks]
+      parameters:
+        - in: path
+          name: taskId
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubmitAnswerRequest'
+      responses:
+        '201':
+          description: Answer submitted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnswerDto'
+
+  /projects/{projectId}/stats:
+    get:
+      summary: Return project analytics summary
+      tags: [Analytics]
+      parameters:
+        - in: path
+          name: projectId
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Stats response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectStatsDto'
+
+components:
+  schemas:
+
+    RegisterRequest:
+      type: object
+      properties:
+        username: { type: string }
+        email: { type: string }
+        password: { type: string }
+        role: { type: string }
+
+    LoginRequest:
+      type: object
+      properties:
+        usernameOrEmail: { type: string }
+        password: { type: string }
+
+    AuthResponse:
+      type: object
+      properties:
+        accessToken: { type: string }
+        tokenType: { type: string }
+        expiresIn: { type: integer }
+        user:
+          $ref: '#/components/schemas/UserDto'
+
+    UserDto:
+      type: object
+      properties:
+        id: { type: integer }
+        username: { type: string }
+        role: { type: string }
+
+    ProjectCreateRequest:
+      type: object
+      properties:
+        name: { type: string }
+        description: { type: string }
+        dataType: { type: string }
+
+    ProjectDto:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        status: { type: string }
+
+    ProjectListResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProjectDto'
+
+    ProjectDetailsDto:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        description: { type: string }
+        stats:
+          $ref: '#/components/schemas/ProjectStatsDto'
+
+    DatasetUploadRequest:
+      type: object
+      properties:
+        file:
+          type: string
+          format: binary
+
+    DatasetDto:
+      type: object
+      properties:
+        id: { type: integer }
+        projectId: { type: integer }
+        status: { type: string }
+
+    TaskDto:
+      type: object
+      properties:
+        id: { type: integer }
+        type: { type: string }
+        payload: { type: object }
+
+    SubmitAnswerRequest:
+      type: object
+      properties:
+        answer: { type: object }
+
+    AnswerDto:
+      type: object
+      properties:
+        id: { type: integer }
+        taskId: { type: integer }
+        workerId: { type: integer }
+
+    ProjectStatsDto:
+      type: object
+      properties:
+        projectId: { type: integer }
+        totalTasks: { type: integer }
+        completedTasks: { type: integer }
+        avgWorkerScore: { type: number }
+
+    TaskGenerationResponse:
+      type: object
+      properties:
+        datasetId: { type: integer }
+        status: { type: string }

@@ -1,0 +1,242 @@
+openapi: 3.0.1
+info:
+  title: DataCrowd Lab API (Full 40 endpoints)
+  version: 1.0.0
+  description: Full API specification. Optional endpoints marked with [OPTIONAL].
+
+servers:
+  - url: http://localhost:8080/api/v1
+
+paths:
+
+  ####################################
+  # 1. AUTH
+  ####################################
+
+  /auth/register:
+    post:
+      summary: Register new user
+      tags: [Auth]
+
+  /auth/login:
+    post:
+      summary: Login user
+      tags: [Auth]
+
+  /auth/refresh:
+    post:
+      summary: "[OPTIONAL] Refresh JWT token"
+      tags: [Auth]
+
+  /auth/logout:
+    post:
+      summary: "[OPTIONAL] Logout user"
+      tags: [Auth]
+
+  ####################################
+  # 2. USERS (ADMIN)
+  ####################################
+
+  /users:
+    get:
+      summary: "[OPTIONAL] List users (admin)"
+      tags: [Users]
+
+  /users/{userId}:
+    get:
+      summary: "[OPTIONAL] Get user details"
+      tags: [Users]
+
+    patch:
+      summary: "[OPTIONAL] Update user"
+      tags: [Users]
+
+  ####################################
+  # 3. PROJECTS
+  ####################################
+
+  /projects:
+    post:
+      summary: Create project
+      tags: [Projects]
+
+    get:
+      summary: Get user projects
+      tags: [Projects]
+
+  /projects/{projectId}:
+    get:
+      summary: Get project details
+      tags: [Projects]
+
+  ####################################
+  # 4. DATASETS
+  ####################################
+
+  /projects/{projectId}/datasets:
+    post:
+      summary: Upload dataset file
+      tags: [Datasets]
+
+    get:
+      summary: "[OPTIONAL] List datasets for project"
+      tags: [Datasets]
+
+  /datasets/{datasetId}:
+    get:
+      summary: Get dataset details
+      tags: [Datasets]
+
+    delete:
+      summary: "[OPTIONAL] Delete dataset"
+      tags: [Datasets]
+
+  /datasets/{datasetId}/generate-tasks:
+    post:
+      summary: Trigger task generation via Runner
+      tags: [Datasets]
+
+  /datasets/{datasetId}/status:
+    get:
+      summary: "[OPTIONAL] Get dataset processing status"
+      tags: [Datasets]
+
+
+  ####################################
+  # 5. PROJECTS EXTRA
+  ####################################
+
+  /projects/{projectId}/tasks:
+    get:
+      summary: "[OPTIONAL] List tasks of project (admin)"
+      tags: [Projects, Tasks]
+
+  /projects/{projectId}/workers:
+    get:
+      summary: "[OPTIONAL] List workers assigned to this project"
+      tags: [Projects, Workers]
+
+  /projects/{projectId}/archive:
+    post:
+      summary: "[OPTIONAL] Archive a project"
+      tags: [Projects]
+  ####################################
+  # 6. TASKS (WORKER FLOW)
+  ####################################
+
+  /tasks/next:
+    get:
+      summary: Get next available task for current worker
+      tags: [Tasks]
+
+  /tasks/{taskId}:
+    get:
+      summary: "[OPTIONAL] Get task details"
+      tags: [Tasks]
+
+  /tasks/{taskId}/lock:
+    post:
+      summary: "[OPTIONAL] Lock task for current worker"
+      tags: [Tasks]
+
+  /tasks/{taskId}/unlock:
+    post:
+      summary: "[OPTIONAL] Unlock task (release)"
+      tags: [Tasks]
+
+  /tasks/{taskId}/submit:
+    post:
+      summary: Submit answer for a task
+      tags: [Tasks]
+
+  /tasks/{taskId}/reject:
+    post:
+      summary: "[OPTIONAL] Reject task as invalid"
+      tags: [Tasks]
+
+
+  ####################################
+  # 7. WORKER SELF-VIEW
+  ####################################
+
+  /workers/me/tasks:
+    get:
+      summary: "[OPTIONAL] Get current worker task history"
+      tags: [Workers, Tasks]
+
+  /workers/me/stats:
+    get:
+      summary: "[OPTIONAL] Get current worker statistics"
+      tags: [Workers]
+
+
+  ####################################
+  # 8. ANSWERS
+  ####################################
+
+  /answers/{answerId}:
+    get:
+      summary: Get answer details
+      tags: [Answers]
+
+  /tasks/{taskId}/answers:
+    get:
+      summary: "[OPTIONAL] List answers for a task"
+      tags: [Answers]
+
+  /projects/{projectId}/answers:
+    get:
+      summary: "[OPTIONAL] List answers for a project"
+      tags: [Answers]
+
+
+  ####################################
+  # 9. ANALYTICS
+  ####################################
+
+  /analytics/global:
+    get:
+      summary: "[OPTIONAL] Global platform analytics"
+      tags: [Analytics]
+
+  /analytics/workers:
+    get:
+      summary: "[OPTIONAL] Workers leaderboard"
+      tags: [Analytics, Workers]
+
+  /projects/{projectId}/analytics:
+    get:
+      summary: "[OPTIONAL] Detailed analytics for a project"
+      tags: [Analytics, Projects]
+
+
+  ####################################
+  # 10. INTERNAL RUNNER API
+  ####################################
+
+  /internal/runner/generate:
+    post:
+      summary: Internal — trigger Runner to generate tasks
+      tags: [Internal-Runner]
+
+  /internal/runner/run-code:
+    post:
+      summary: "[OPTIONAL] Internal — execute code snippet (Python sandbox)"
+      tags: [Internal-Runner]
+
+
+  ####################################
+  # 11. INTERNAL ML API
+  ####################################
+
+  /internal/ml/evaluate:
+    post:
+      summary: Internal — evaluate task/answer with ML model
+      tags: [Internal-ML]
+
+  /internal/ml/predict:
+    post:
+      summary: "[OPTIONAL] Internal — generate automatic label prediction"
+      tags: [Internal-ML]
+
+
