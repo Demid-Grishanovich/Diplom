@@ -113,6 +113,9 @@ public class TaskService {
                 .task(task)
                 .worker(worker)
                 .answerJson(request.answerJson())
+                .evaluationScore(null)
+                .accepted(null)
+                .rewardGranted(false)
                 .createdAt(Instant.now())
                 .build();
         answerRepository.save(answer);
@@ -143,12 +146,24 @@ public class TaskService {
 
     // --------- Generate tasks for dataset ---------
 
-    public List<TaskResponse> generateTasksForDataset(Long datasetId, int count, String type, User currentUser) {
+    public List<TaskResponse> generateTasksForDataset(Long datasetId,
+                                                      int count,
+                                                      String type,
+                                                      User currentUser,
+                                                      Integer rewardPoints) {
+
         Dataset dataset = datasetRepository.findById(datasetId)
                 .orElseThrow(() -> new IllegalArgumentException("Dataset not found"));
+
         Project project = getAccessibleProject(dataset.getProject().getId(), currentUser);
 
         Instant now = Instant.now();
+
+        // если rewardPoints не передали — берём дефолт из проекта, если и там нет — 1
+        int effectiveReward = rewardPoints != null
+                ? rewardPoints
+                : (project.getDefaultRewardPoints() != null ? project.getDefaultRewardPoints() : 1);
+
         for (int i = 0; i < count; i++) {
             Task task = Task.builder()
                     .project(project)
@@ -157,15 +172,16 @@ public class TaskService {
                     .payloadRef("item-" + (i + 1))
                     .inputPreview("Auto generated item " + (i + 1))
                     .status("NEW")
+                    .rewardPoints(effectiveReward)  // ← вот здесь цена задачи
                     .createdAt(now)
                     .updatedAt(now)
                     .build();
+
             taskRepository.save(task);
         }
 
         return taskRepository.findAllByProject(project)
                 .stream()
-                .filter(t -> t.getDataset() != null && t.getDataset().getId().equals(datasetId))
                 .map(this::toResponse)
                 .toList();
     }
@@ -216,6 +232,7 @@ public class TaskService {
                 task.getPayloadRef(),
                 task.getInputPreview(),
                 task.getStatus(),
+                task.getRewardPoints(),
                 task.getAssignedTo() != null ? task.getAssignedTo().getId() : null,
                 task.getCreatedAt(),
                 task.getUpdatedAt()

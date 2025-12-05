@@ -39,4 +39,8 @@ public class Answer {
 
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
+
+    @Column(name = "reward_granted", nullable = false)
+    private Boolean rewardGranted;
+
 }

@@ -38,4 +38,12 @@ public class AnswerController {
     ) {
         return answerService.getAnswersByProject(projectId, currentUser);
     }
+
+    @PostMapping("/answers/{answerId}/accept")
+    public AnswerResponse acceptAnswer(
+            @PathVariable Long answerId,
+            @AuthenticationPrincipal User currentUser
+    ) {
+        return answerService.acceptAnswer(answerId, currentUser);
+    }
 }

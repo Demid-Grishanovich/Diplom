@@ -27,6 +27,7 @@ public class DatasetService {
 
     private final DatasetRepository datasetRepository;
     private final ProjectRepository projectRepository;
+    private final TaskService taskService;
 
     public DatasetResponse createDataset(Long projectId, DatasetCreateRequest request, User currentUser) {
         Project project = getAccessibleProject(projectId, currentUser);
@@ -121,8 +122,15 @@ public class DatasetService {
         Dataset dataset = getAccessibleDataset(datasetId, currentUser);
         return new DatasetStatusResponse(dataset.getId(), dataset.getStatus());
     }
-    private final TaskService taskService;
-    public List<TaskResponse> generateTasks(Long datasetId, GenerateTasksRequest request, User currentUser) {
-        return taskService.generateTasksForDataset(datasetId, request.count(), request.type(), currentUser);
+    public List<TaskResponse> generateTasks(Long datasetId,
+                                            GenerateTasksRequest request,
+                                            User currentUser) {
+        return taskService.generateTasksForDataset(
+                datasetId,
+                request.count(),
+                request.type(),
+                currentUser,
+                request.rewardPoints()   // ← новый аргумент
+        );
     }
 }

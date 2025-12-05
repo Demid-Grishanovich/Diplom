@@ -58,6 +58,15 @@ public class AuthService {
         return toAuthResponse(user, token);
     }
 
+    public AuthResponse refresh(User currentUser) {
+        if (currentUser == null) {
+            throw new SecurityException("User is not authenticated");
+        }
+
+        String token = jwtService.generateToken(currentUser);
+        return toAuthResponse(currentUser, token);
+    }
+
     private AuthResponse toAuthResponse(User user, String token) {
         return new AuthResponse(
                 user.getId(),

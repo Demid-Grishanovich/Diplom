@@ -7,6 +7,8 @@ public record WorkerStatsResponse(
         String workerEmail,
         Integer tasksCompleted,
         Double avgScore,
-        Instant lastActive
+        Instant lastActive,
+        Long pointsBalance,
+        Long totalPointsEarned
 ) {
 }

@@ -48,7 +48,9 @@ public class WorkerStatsService {
                 worker.getEmail(),
                 stats.getTasksCompleted(),
                 stats.getAvgScore(),
-                stats.getLastActive()
+                stats.getLastActive(),
+                stats.getPointsBalance(),
+                stats.getTotalPointsEarned()
         );
     }
 }

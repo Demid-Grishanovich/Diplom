@@ -10,6 +10,7 @@ public record TaskResponse(
         String payloadRef,
         String inputPreview,
         String status,
+        Integer rewardPoints,
         Long assignedToId,
         Instant createdAt,
         Instant updatedAt

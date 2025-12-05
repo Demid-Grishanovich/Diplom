@@ -35,4 +35,10 @@ public class WorkerStats {
     // last_active : timestamp
     @Column(name = "last_active")
     private Instant lastActive;
+
+    @Column(name = "points_balance", nullable = false)
+    private Long pointsBalance;
+
+    @Column(name = "total_points_earned", nullable = false)
+    private Long totalPointsEarned;
 }

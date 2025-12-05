@@ -9,4 +9,5 @@ import java.util.Optional;
 public interface WorkerStatsRepository extends JpaRepository<WorkerStats, Long> {
 
     Optional<WorkerStats> findByWorker(User worker);
+    Optional<WorkerStats> findByWorkerId(Long workerId);
 }

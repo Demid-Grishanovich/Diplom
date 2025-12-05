@@ -50,4 +50,7 @@ public class Task {
 
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
+
+    @Column(name = "reward_points", nullable = false)
+    private Integer rewardPoints;
 }

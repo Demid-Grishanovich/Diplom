@@ -23,6 +23,7 @@ public class AnswerService {
     private final AnswerRepository answerRepository;
     private final TaskRepository taskRepository;
     private final ProjectRepository projectRepository;
+    private final RewardService rewardService;
 
     public AnswerResponse getAnswerById(Long answerId, User currentUser) {
         Answer answer = answerRepository.findById(answerId)
@@ -85,5 +86,14 @@ public class AnswerService {
                 answer.getAccepted(),
                 answer.getCreatedAt()
         );
+    }
+    @Transactional
+    public AnswerResponse acceptAnswer(Long answerId, User currentUser) {
+        Answer answer = answerRepository.findById(answerId)
+                .orElseThrow(() -> new IllegalArgumentException("Answer not found"));
+        answer.setAccepted(true);
+        rewardService.grantRewardIfNeeded(answer);
+        answerRepository.save(answer);
+        return toResponse(answer);
     }
 }

@@ -40,4 +40,9 @@ public class Project {
 
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
+
+    // default_reward_points : int
+    @Column(name = "default_reward_points", nullable = false)
+    private Integer defaultRewardPoints;
+
 }
